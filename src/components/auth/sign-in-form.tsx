@@ -21,6 +21,7 @@ import { z as zod } from 'zod';
 import { paths } from '@/paths';
 import { authClient } from '@/lib/auth/client';
 import { useUser } from '@/hooks/use-user';
+import Box from '@mui/material/Box';
 
 const schema = zod.object({
   email: zod.string().min(1, { message: 'Email is required' }).email(),
@@ -29,7 +30,7 @@ const schema = zod.object({
 
 type Values = zod.infer<typeof schema>;
 
-const defaultValues = { email: 'admin@journal.com', password: 'admin' } satisfies Values;
+const defaultValues = { email: 'sofia@devias.io', password: 'Secret1' } satisfies Values;
 
 export function SignInForm(): React.JSX.Element {
   const router = useRouter();
@@ -72,13 +73,7 @@ export function SignInForm(): React.JSX.Element {
   return (
     <Stack spacing={4}>
       <Stack spacing={1}>
-        <Typography variant="h4">Sign in</Typography>
-        <Typography color="text.secondary" variant="body2">
-          Don&apos;t have an account?{' '}
-          <Link component={RouterLink} href={paths.auth.signUp} underline="hover" variant="subtitle2">
-            Sign up
-          </Link>
-        </Typography>
+        <Typography variant="h4" sx={{ color: 'black' }}>Login</Typography>
       </Stack>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={2}>
@@ -87,8 +82,13 @@ export function SignInForm(): React.JSX.Element {
             name="email"
             render={({ field }) => (
               <FormControl error={Boolean(errors.email)}>
-                <InputLabel>Email address</InputLabel>
-                <OutlinedInput {...field} label="Email address" type="email" />
+                <InputLabel sx={{ color: 'black' }}>Email address</InputLabel>
+                <OutlinedInput
+                  {...field}
+                  label="Email address"
+                  type="email"
+                  sx={{ '& .MuiOutlinedInput-notchedOutline': { borderColor: '#7c3b10' } }}
+                />
                 {errors.email ? <FormHelperText>{errors.email.message}</FormHelperText> : null}
               </FormControl>
             )}
@@ -98,7 +98,7 @@ export function SignInForm(): React.JSX.Element {
             name="password"
             render={({ field }) => (
               <FormControl error={Boolean(errors.password)}>
-                <InputLabel>Password</InputLabel>
+                <InputLabel sx={{ color: 'black' }}>Password</InputLabel>
                 <OutlinedInput
                   {...field}
                   endAdornment={
@@ -122,32 +122,53 @@ export function SignInForm(): React.JSX.Element {
                   }
                   label="Password"
                   type={showPassword ? 'text' : 'password'}
+                  sx={{ '& .MuiOutlinedInput-notchedOutline': { borderColor: '#7c3b10' } }}
                 />
                 {errors.password ? <FormHelperText>{errors.password.message}</FormHelperText> : null}
               </FormControl>
             )}
           />
           <div>
-            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2">
+            <Link component={RouterLink} href={paths.auth.resetPassword} variant="subtitle2" sx={{ color: '#7c3b10' }}>
               Forgot password?
             </Link>
           </div>
           {errors.root ? <Alert color="error">{errors.root.message}</Alert> : null}
-          <Button disabled={isPending} type="submit" variant="contained">
-            Sign in
+          <Button
+            fullWidth
+            size="large"
+            sx={{ mt: 3, bgcolor: '#7c3b10', '&:hover': { bgcolor: '#5b2808' } }}
+            type="submit"
+            variant="contained"
+            disabled={isPending}
+          >
+            Login
+          </Button>
+          <Box textAlign="center">
+            <Typography variant="body2" sx={{ color: '#7c3b10' }}>OR</Typography>
+          </Box>
+          <Button
+            component={RouterLink}
+            href={paths.auth.signUp}
+            fullWidth
+            size="large"
+            sx={{ mt: 1, color: '#7c3b10', borderColor: '#7c3b10', '&:hover': { borderColor: '#5b2808', color: '#5b2808' } }}
+            variant="outlined"
+          >
+            Register
           </Button>
         </Stack>
       </form>
-      {/* <Alert color="warning">
+      <Alert color="warning">
         Use{' '}
         <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
           sofia@devias.io
         </Typography>{' '}
-          with password{' '}
+        with password{' '}
         <Typography component="span" sx={{ fontWeight: 700 }} variant="inherit">
           Secret1
         </Typography>
-      </Alert> */}
+      </Alert>
     </Stack>
   );
 }
