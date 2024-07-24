@@ -5,7 +5,7 @@ export const paths = {
     overview: '/dashboard',
     account: '/dashboard/account',
     manuscripts: '/dashboard/manuscripts',
-    integrations: '/dashboard/integrations',
+    submit: '/dashboard/submit-manuscript',
     settings: '/dashboard/settings',
   },
   errors: { notFound: '/errors/not-found' },
