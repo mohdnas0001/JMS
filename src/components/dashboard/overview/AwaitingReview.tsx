@@ -13,7 +13,6 @@ export interface TotalCustomersProps {
 }
 
 export function AwaitingReview({ sx, value }: TotalCustomersProps): React.JSX.Element {
-  
   return (
     <Card sx={sx}>
       <CardContent>
@@ -29,7 +28,6 @@ export function AwaitingReview({ sx, value }: TotalCustomersProps): React.JSX.El
               <FileTextIcon fontSize="var(--icon-fontSize-lg)" />
             </Avatar>
           </Stack>
-          
         </Stack>
       </CardContent>
     </Card>

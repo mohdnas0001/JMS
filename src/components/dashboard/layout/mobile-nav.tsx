@@ -17,17 +17,39 @@ import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { Logo } from '@/components/core/logo';
 
-import { navItems } from './config';
+import {
+  navItemsAuthor,
+  navItemsChiefEditor,
+  navItemsManagingEditor,
+  navItemsProductionEditor,
+  navItemsReviewer,
+  navItemsSectionEditor,
+} from './config';
 import { navIcons } from './nav-icons';
 
 export interface MobileNavProps {
   onClose?: () => void;
   open?: boolean;
-  items?: NavItemConfig[];
 }
 
-export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element {
+export const MobileNav = ({ open, onClose }: MobileNavProps): React.JSX.Element => {
   const pathname = usePathname();
+
+  let currentNavItems: NavItemConfig[] = [];
+
+  if (pathname.startsWith(paths.dashboard.author.overview)) {
+    currentNavItems = navItemsAuthor;
+  } else if (pathname.startsWith(paths.dashboard.chiefEditor.overview)) {
+    currentNavItems = navItemsChiefEditor;
+  } else if (pathname.startsWith(paths.dashboard.reviewer.overview)) {
+    currentNavItems = navItemsReviewer;
+  } else if (pathname.startsWith(paths.dashboard.managingEditor.overview)) {
+    currentNavItems = navItemsManagingEditor;
+  } else if (pathname.startsWith(paths.dashboard.productionEditor.overview)) {
+    currentNavItems = navItemsProductionEditor;
+  } else if (pathname.startsWith(paths.dashboard.sectionEditor.overview)) {
+    currentNavItems = navItemsSectionEditor;
+  }
 
   return (
     <Drawer
@@ -85,7 +107,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
-        {renderNavItems({ pathname, items: navItems })}
+        {renderNavItems({ pathname, items: currentNavItems })}
       </Box>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Stack spacing={2} sx={{ p: '12px' }}>
@@ -119,7 +141,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
       </Stack>
     </Drawer>
   );
-}
+};
 
 function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pathname: string }): React.JSX.Element {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
@@ -141,7 +163,7 @@ interface NavItemProps extends Omit<NavItemConfig, 'items'> {
   pathname: string;
 }
 
-function NavItem({ disabled, external, href, icon, matcher, pathname, title }: NavItemProps): React.JSX.Element {
+const NavItem = ({ disabled, external, href, icon, matcher, pathname, title }: NavItemProps): React.JSX.Element => {
   const active = isNavItemActive({ disabled, external, href, matcher, pathname });
   const Icon = icon ? navIcons[icon] : null;
 
@@ -196,4 +218,4 @@ function NavItem({ disabled, external, href, icon, matcher, pathname, title }: N
       </Box>
     </li>
   );
-}
+};

@@ -9,18 +9,39 @@ import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { ArrowSquareUpRight as ArrowSquareUpRightIcon } from '@phosphor-icons/react/dist/ssr/ArrowSquareUpRight';
-// import { CaretUpDown as CaretUpDownIcon } from '@phosphor-icons/react/dist/ssr/CaretUpDown';
 
 import type { NavItemConfig } from '@/types/nav';
-// import { paths } from '@/paths';
+import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
-// import { Logo } from '@/components/core/logo';
 
-import { navItems } from './config';
+import {
+  navItemsAuthor,
+  navItemsChiefEditor,
+  navItemsManagingEditor,
+  navItemsProductionEditor,
+  navItemsReviewer,
+  navItemsSectionEditor,
+} from './config';
 import { navIcons } from './nav-icons';
 
-export function SideNav(): React.JSX.Element {
+const SideNav = (): React.JSX.Element => {
   const pathname = usePathname();
+
+  let currentNavItems: NavItemConfig[] = [];
+
+  if (pathname.startsWith(paths.dashboard.author.overview)) {
+    currentNavItems = navItemsAuthor;
+  } else if (pathname.startsWith(paths.dashboard.chiefEditor.overview)) {
+    currentNavItems = navItemsChiefEditor;
+  } else if (pathname.startsWith(paths.dashboard.reviewer.overview)) {
+    currentNavItems = navItemsReviewer;
+  } else if (pathname.startsWith(paths.dashboard.managingEditor.overview)) {
+    currentNavItems = navItemsManagingEditor;
+  } else if (pathname.startsWith(paths.dashboard.productionEditor.overview)) {
+    currentNavItems = navItemsProductionEditor;
+  } else if (pathname.startsWith(paths.dashboard.sectionEditor.overview)) {
+    currentNavItems = navItemsSectionEditor;
+  }
 
   return (
     <Box
@@ -51,34 +72,11 @@ export function SideNav(): React.JSX.Element {
       }}
     >
       <Stack spacing={2} sx={{ p: 3 }}>
-        {/* <Box component={RouterLink} href={paths.home} sx={{ display: 'inline-flex' }}>
-          <Logo color="light" height={32} width={122} />
-        </Box> */}
-        {/* <Box
-          sx={{
-            alignItems: 'center',
-            backgroundColor: 'var(--mui-palette-neutral-950)',
-            border: '1px solid var(--mui-palette-neutral-700)',
-            borderRadius: '12px',
-            cursor: 'pointer',
-            display: 'flex',
-            p: '4px 12px',
-          }}
-        >
-          <Box sx={{ flex: '1 1 auto' }}>
-            <Typography color="var(--mui-palette-neutral-400)" variant="body2">
-              Workspace
-            </Typography>
-            <Typography color="inherit" variant="subtitle1">
-              Devias
-            </Typography>
-          </Box>
-          <CaretUpDownIcon />
-        </Box> */}
+        {/* Add your Logo or other items here */}
       </Stack>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Box component="nav" sx={{ flex: '1 1 auto', p: '12px' }}>
-        {renderNavItems({ pathname, items: navItems })}
+        {renderNavItems({ pathname, items: currentNavItems })}
       </Box>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Stack spacing={2} sx={{ p: '12px' }}>
@@ -112,9 +110,9 @@ export function SideNav(): React.JSX.Element {
       </Stack>
     </Box>
   );
-}
+};
 
-function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pathname: string }): React.JSX.Element {
+const renderNavItems = ({ items = [], pathname }: { items?: NavItemConfig[]; pathname: string }): React.JSX.Element => {
   const children = items.reduce((acc: React.ReactNode[], curr: NavItemConfig): React.ReactNode[] => {
     const { key, ...item } = curr;
 
@@ -128,13 +126,13 @@ function renderNavItems({ items = [], pathname }: { items?: NavItemConfig[]; pat
       {children}
     </Stack>
   );
-}
+};
 
 interface NavItemProps extends Omit<NavItemConfig, 'items'> {
   pathname: string;
 }
 
-function NavItem({ disabled, external, href, icon, matcher, pathname, title }: NavItemProps): React.JSX.Element {
+const NavItem = ({ disabled, external, href, icon, matcher, pathname, title }: NavItemProps): React.JSX.Element => {
   const active = isNavItemActive({ disabled, external, href, matcher, pathname });
   const Icon = icon ? navIcons[icon] : null;
 
@@ -189,4 +187,6 @@ function NavItem({ disabled, external, href, icon, matcher, pathname, title }: N
       </Box>
     </li>
   );
-}
+};
+
+export { SideNav };

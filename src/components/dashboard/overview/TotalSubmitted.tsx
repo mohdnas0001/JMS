@@ -20,7 +20,7 @@ export function TotalSubmitted({ sx, value }: BudgetProps): React.JSX.Element {
           <Stack direction="row" sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }} spacing={3}>
             <Stack spacing={1}>
               <Typography color="text.secondary" variant="overline">
-                Total Submitted 
+                Total Submitted
               </Typography>
               <Typography variant="h4">{value}</Typography>
             </Stack>

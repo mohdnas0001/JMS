@@ -17,7 +17,7 @@ import { usePopover } from '@/hooks/use-popover';
 import { MobileNav } from './mobile-nav';
 import { UserPopover } from './user-popover';
 
-export function MainNav(): React.JSX.Element {
+export const MainNav = (): React.JSX.Element => {
   const [openNav, setOpenNav] = React.useState<boolean>(false);
 
   const userPopover = usePopover<HTMLDivElement>();
@@ -85,4 +85,4 @@ export function MainNav(): React.JSX.Element {
       />
     </React.Fragment>
   );
-}
+};

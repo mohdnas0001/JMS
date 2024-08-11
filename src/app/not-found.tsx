@@ -12,7 +12,7 @@ import { paths } from '@/paths';
 
 export const metadata = { title: `Not found | ${config.site.name}` } satisfies Metadata;
 
-export default function NotFound(): React.JSX.Element {
+const NotFound: React.FC = (): React.JSX.Element => {
   return (
     <Box component="main" sx={{ alignItems: 'center', display: 'flex', justifyContent: 'center', minHeight: '100%' }}>
       <Stack spacing={3} sx={{ alignItems: 'center', maxWidth: 'md' }}>
@@ -41,4 +41,6 @@ export default function NotFound(): React.JSX.Element {
       </Stack>
     </Box>
   );
-}
+};
+
+export default NotFound;

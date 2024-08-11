@@ -1,5 +1,8 @@
 'use client';
 
+import { baseUrl } from '@/constants/config';
+import { useAuthStore } from '@/zustand/store/authStore';
+
 import type { User } from '@/types/user';
 
 function generateToken(): string {
@@ -37,61 +40,64 @@ export interface ResetPasswordParams {
 }
 
 class AuthClient {
-  async signUp(_: SignUpParams): Promise<{ error?: string }> {
-    // Make API request
-
-    // We do not handle the API, so we'll just generate a token and store it in localStorage.
-    const token = generateToken();
-    localStorage.setItem('custom-auth-token', token);
-
-    return {};
-  }
-
-  async signInWithOAuth(_: SignInWithOAuthParams): Promise<{ error?: string }> {
-    return { error: 'Social authentication not implemented' };
-  }
-
-  async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string }> {
+  async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string; roles?: string[] }> {
     const { email, password } = params;
+    const setAccessToken = useAuthStore.getState().setAccessToken;
+    const setRoles = useAuthStore.getState().setRoles;
 
-    // Make API request
+    try {
+      const response = await fetch(`${baseUrl}/v1/auth/login/email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // We do not handle the API, so we'll check if the credentials match with the hardcoded ones.
-    if (email !== 'admin@journal.com' || password !== 'admin') {
-      return { error: 'Invalid credentials' };
+      if (!response.ok) {
+        const errorData = await response.json();
+        return { error: errorData.message };
+      }
+
+      const data = await response.json();
+      const { accessToken, roles } = data;
+
+      setAccessToken(accessToken);
+      setRoles(roles);
+
+      return { roles };
+    } catch (error) {
+      console.error('SignInWithPassword Error:', error);
+      return { error: 'Network error' };
+    }
+  }
+
+  async getUser(): Promise<{ data: User | null; error: string | null }> {
+    const accessToken = useAuthStore.getState().accessToken;
+
+    if (!accessToken) {
+      return { data: null, error: 'No token found' };
     }
 
-    const token = generateToken();
-    localStorage.setItem('custom-auth-token', token);
+    try {
+      const response = await fetch(`${baseUrl}/v1/auth/session`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
-    return {};
-  }
+      if (!response.ok) {
+        const errorData = await response.json();
+        return { data: null, error: errorData.message };
+      }
 
-  async resetPassword(_: ResetPasswordParams): Promise<{ error?: string }> {
-    return { error: 'Password reset not implemented' };
-  }
-
-  async updatePassword(_: ResetPasswordParams): Promise<{ error?: string }> {
-    return { error: 'Update reset not implemented' };
-  }
-
-  async getUser(): Promise<{ data?: User | null; error?: string }> {
-    // Make API request
-
-    // We do not handle the API, so just check if we have a token in localStorage.
-    const token = localStorage.getItem('custom-auth-token');
-
-    if (!token) {
-      return { data: null };
+      const data = await response.json();
+      return { data: data.user as User, error: null };
+    } catch (error) {
+      console.error('GetUser Error:', error);
+      return { data: null, error: 'Failed to fetch user' };
     }
-
-    return { data: user };
-  }
-
-  async signOut(): Promise<{ error?: string }> {
-    localStorage.removeItem('custom-auth-token');
-
-    return {};
   }
 }
 

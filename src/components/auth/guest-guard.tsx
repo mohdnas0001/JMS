@@ -2,54 +2,45 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import Alert from '@mui/material/Alert';
 
 import { paths } from '@/paths';
-import { logger } from '@/lib/default-logger';
 import { useUser } from '@/hooks/use-user';
 
-export interface GuestGuardProps {
-  children: React.ReactNode;
-}
+type DashboardPath =
+  | typeof paths.dashboard.author.overview
+  | typeof paths.dashboard.editor.overview
+  | typeof paths.dashboard.reviewer.overview;
 
-export function GuestGuard({ children }: GuestGuardProps): React.JSX.Element | null {
+const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isLoading } = useUser();
   const router = useRouter();
-  const { user, error, isLoading } = useUser();
-  const [isChecking, setIsChecking] = React.useState<boolean>(true);
-
-  const checkPermissions = async (): Promise<void> => {
-    if (isLoading) {
-      return;
-    }
-
-    if (error) {
-      setIsChecking(false);
-      return;
-    }
-
-    if (user) {
-      logger.debug('[GuestGuard]: User is logged in, redirecting to dashboard');
-      router.replace(paths.dashboard.overview);
-      return;
-    }
-
-    setIsChecking(false);
-  };
 
   React.useEffect(() => {
-    checkPermissions().catch(() => {
-      // noop
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Expected
-  }, [user, error, isLoading]);
+    if (isLoading) return; // Wait until loading is complete
 
-  if (isChecking) {
+    if (user.accessToken) {
+      console.debug('[GuestGuard]: User is logged in, redirecting to dashboard');
+
+      // Determine the redirect path based on the user role
+      let redirectPath: DashboardPath = paths.dashboard.author.overview; // default to author dashboard
+
+      if (user.roles.includes('editor')) {
+        redirectPath = paths.dashboard.editor.overview;
+      } else if (user.roles.includes('reviewer')) {
+        redirectPath = paths.dashboard.reviewer.overview;
+      }
+
+      // Redirect to the appropriate dashboard
+      router.replace(redirectPath);
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || user.accessToken) {
+    // Maybe render a loading state or nothing until redirect completes
     return null;
   }
 
-  if (error) {
-    return <Alert color="error">{error}</Alert>;
-  }
+  return <>{children}</>;
+};
 
-  return <React.Fragment>{children}</React.Fragment>;
-}
+export default GuestGuard;

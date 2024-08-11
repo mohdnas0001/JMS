@@ -22,6 +22,7 @@ module.exports = {
     },
   },
   rules: {
+    "no-console": "off",
     '@typescript-eslint/no-unused-vars': [
       'error',
       {
@@ -45,16 +46,67 @@ module.exports = {
     ],
     'import/newline-after-import': 'error',
     'react/jsx-uses-react': 'error',
-    'react/react-in-jsx-scope': 'error',
+    'react/react-in-jsx-scope': 'off', // React 17+ no longer requires React to be in scope
     'unicorn/filename-case': [
       'error',
       {
-        cases: {
+        cases: {{
+          "extends": [
+            "next/core-web-vitals",
+            //"plugin:@typescript-eslint/recommended-type-checked",
+            "prettier"
+          ],
+          "plugins": ["@typescript-eslint", "simple-import-sort", "unused-imports", "@tanstack/query"],
+          "ignorePatterns": ["static_forms/**"],
+          /** Enable type-checking later when it is safe to */
+          /**
+          "parser": "@typescript-eslint/parser",
+          "parserOptions": {
+            "project": true,
+            "tsconfigRootDir": "."
+          },
+          */
+          "root": true,
+           "overrides": [
+          {
+            "files": ["*.ts", "*.tsx"],
+            "rules": {
+              "@typescript-eslint/no-shadow": ["error"],
+              "no-shadow": "off",
+              "no-undef": "off"
+            }
+          },
+          {
+            "files": ["*.test.ts", "*.test.tsx"],
+            "plugins": ["jest"],
+            "extends": ["plugin:jest/recommended", "plugin:jest/style"],
+            "env": {"jest/globals": true}
+          }
+        ],
+        "rules": {
+          //"max-len": ["error", {"code": 100}],
+          "semi": ["error", "always"],
+          "simple-import-sort/imports": "error",
+          "simple-import-sort/exports": "error",
+          "@typescript-eslint/no-unused-vars": "off",
+          "unused-imports/no-unused-imports": "error",
+          "unused-imports/no-unused-vars": [
+            "error",
+            { "vars": "all", "varsIgnorePattern": "^_", "args": "after-used", "argsIgnorePattern": "^_" }
+          ],
+          "react/display-name": "off",
+          "@tanstack/query/exhaustive-deps": "error",
+          "@tanstack/query/no-rest-destructuring": "warn",
+          "@tanstack/query/stable-query-client": "error"
+        }
+      }
           kebabCase: true, // personal style
           pascalCase: true,
         },
       },
     ],
+    'react/function-component-definition': 'off',
+
 
     // Deactivated
     '@typescript-eslint/dot-notation': 'off', // paths are used with a dot notation
