@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import RouterLink from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation'; // import useRouter
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
@@ -23,9 +23,12 @@ import {
   navItemsSectionEditor,
 } from './config';
 import { navIcons } from './nav-icons';
+import { useAuthStore } from '@/zustand/store/authStore';
 
 const SideNav = (): React.JSX.Element => {
   const pathname = usePathname();
+  const router = useRouter(); // Initialize useRouter
+  const clearAuth = useAuthStore((state) => state.clearAuth); // Get clearAuth from the store
 
   let currentNavItems: NavItemConfig[] = [];
 
@@ -42,6 +45,11 @@ const SideNav = (): React.JSX.Element => {
   } else if (pathname.startsWith(paths.dashboard.sectionEditor.overview)) {
     currentNavItems = navItemsSectionEditor;
   }
+
+  const handleLogout = () => {
+    clearAuth(); // Clear authentication state
+    router.push(paths.auth.signIn); // Redirect to the sign-in page
+  };
 
   return (
     <Box
@@ -80,14 +88,14 @@ const SideNav = (): React.JSX.Element => {
       </Box>
       <Divider sx={{ borderColor: 'var(--mui-palette-neutral-700)' }} />
       <Stack spacing={2} sx={{ p: '12px' }}>
-        <div>
+        {/* <div>
           <Typography color="var(--mui-palette-neutral-100)" variant="subtitle2">
             Need more features?
           </Typography>
           <Typography color="var(--mui-palette-neutral-400)" variant="body2">
             Check out our Pro solution template.
           </Typography>
-        </div>
+        </div> */}
         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
           <Box
             component="img"
@@ -97,15 +105,13 @@ const SideNav = (): React.JSX.Element => {
           />
         </Box>
         <Button
-          component="a"
+          onClick={handleLogout} 
           endIcon={<ArrowSquareUpRightIcon fontSize="var(--icon-fontSize-md)" />}
           fullWidth
-          href="https://material-kit-pro-react.devias.io/"
           sx={{ mt: 2 }}
-          target="_blank"
           variant="contained"
         >
-          Pro version
+          Log out
         </Button>
       </Stack>
     </Box>

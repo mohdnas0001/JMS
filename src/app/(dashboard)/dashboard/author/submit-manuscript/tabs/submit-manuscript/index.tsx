@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { submitManuscript } from '@/api/manuscript';
-import { Box, Step, StepLabel, Stepper, Typography } from '@mui/material';
+import { Box, Button, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import ContactInfoStep from '../../components/contact-info';
@@ -58,12 +58,20 @@ const MultiStepForm: React.FC = () => {
           ))}
         </Stepper>
         {activeStep === steps.length ? (
-          <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
-          </Typography>
-        ) : (
-          <Box>{getStepContent(activeStep)}</Box>
-        )}
+  <Box sx={{ textAlign: 'center', mt: 4 }}>
+    <Typography variant="h6" sx={{ mb: 2 }}>
+      Your submission is complete!
+    </Typography>
+    <Typography variant="body1" sx={{ mb: 3 }}>
+      Thank you for submitting your manuscript. We have received your information and will get back to you soon.
+    </Typography>
+    <Button variant="contained" color="primary" onClick={() => setActiveStep(0)}>
+      Submit Another Manuscript
+    </Button>
+  </Box>
+) : (
+  <Box>{getStepContent(activeStep)}</Box>
+)}
       </Box>
     </FormProvider>
   );

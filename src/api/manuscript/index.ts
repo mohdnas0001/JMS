@@ -48,7 +48,7 @@ export const getSubmittedManuscripts = async () => {
       throw new Error('No access token found');
     }
 
-    const response = await fetch(`${baseUrl}/author/Submitted-Manuscript`, {
+    const response = await fetch(`${baseUrl}/v1/author/Sumitted-Manuscript`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,

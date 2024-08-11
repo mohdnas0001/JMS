@@ -8,13 +8,12 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
 
-// Define the structure of the journal data
 export interface Journal {
   id: string;
   title: string;
-  status: 'Approved' | 'Under Review' | 'Submitted';
+  status: 'approved' | 'under review' | 'submitted';
   author: string;
-  coAuthor: string[];
+  coAuthor?: string; // Adjusted to be a string instead of an array
   createdAt: Date;
 }
 
@@ -23,7 +22,7 @@ export interface JournalCardProps {
 }
 
 export const JournalCard = ({ journal }: JournalCardProps): React.JSX.Element => {
-  const canEdit = journal.status === 'Submitted';
+  const canEdit = journal.status.toLowerCase() === 'submitted';
 
   return (
     <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%', boxShadow: 3, position: 'relative' }}>
@@ -38,12 +37,12 @@ export const JournalCard = ({ journal }: JournalCardProps): React.JSX.Element =>
           py: 0.5,
           borderRadius: 0,
           backgroundColor:
-            journal.status === 'Approved' ? '#d4edda' : journal.status === 'Under Review' ? '#fff3cd' : '#e2e3e5',
-          color: journal.status === 'Approved' ? '#155724' : journal.status === 'Under Review' ? '#856404' : '#383d41',
+            journal.status.toLowerCase() === 'approved' ? '#d4edda' : journal.status.toLowerCase() === 'under review' ? '#fff3cd' : '#e2e3e5',
+          color: journal.status.toLowerCase() === 'approved' ? '#155724' : journal.status.toLowerCase() === 'under review' ? '#856404' : '#383d41',
           zIndex: 1,
         }}
       >
-        {journal.status}
+        {journal.status.toLowerCase()}
       </Box>
 
       <CardContent sx={{ flex: '1 1 auto', marginTop: '15px' }}>
@@ -56,7 +55,7 @@ export const JournalCard = ({ journal }: JournalCardProps): React.JSX.Element =>
               <strong>Author:</strong> {journal.author}
             </Typography>
             <Typography variant="body1">
-              <strong>Co-authors:</strong> {journal.coAuthor.length > 0 ? journal.coAuthor.join(', ') : 'None'}
+              <strong>Co-authors:</strong> {journal.coAuthor || 'None'}
             </Typography>
             <Typography variant="body1">
               <strong>Submission Date:</strong> {dayjs(journal.createdAt).format('MMM D, YYYY')}

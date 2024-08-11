@@ -8,7 +8,7 @@ import { useUser } from '@/hooks/use-user';
 
 type DashboardPath =
   | typeof paths.dashboard.author.overview
-  | typeof paths.dashboard.editor.overview
+  | typeof paths.dashboard.chiefEditor.overview
   | typeof paths.dashboard.reviewer.overview;
 
 const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -25,7 +25,7 @@ const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       let redirectPath: DashboardPath = paths.dashboard.author.overview; // default to author dashboard
 
       if (user.roles.includes('editor')) {
-        redirectPath = paths.dashboard.editor.overview;
+        redirectPath = paths.dashboard.chiefEditor.overview;
       } else if (user.roles.includes('reviewer')) {
         redirectPath = paths.dashboard.reviewer.overview;
       }

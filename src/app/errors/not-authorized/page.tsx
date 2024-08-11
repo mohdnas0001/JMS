@@ -20,7 +20,7 @@ const NotAuthorized: React.FC = (): React.JSX.Element => {
           <Box
             component="img"
             alt="Under development"
-            src="/assets/error-404.png"
+            src="/assets/error-401.png"
             sx={{ display: 'inline-block', height: 'auto', maxWidth: '100%', width: '400px' }}
           />
         </Box>

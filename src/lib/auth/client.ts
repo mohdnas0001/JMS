@@ -5,20 +5,6 @@ import { useAuthStore } from '@/zustand/store/authStore';
 
 import type { User } from '@/types/user';
 
-function generateToken(): string {
-  const arr = new Uint8Array(12);
-  window.crypto.getRandomValues(arr);
-  return Array.from(arr, (v) => v.toString(16).padStart(2, '0')).join('');
-}
-
-const user = {
-  id: 'USR-000',
-  avatar: '/assets/avatar.png',
-  firstName: 'Sofia',
-  lastName: 'Rivers',
-  email: 'sofia@devias.io',
-} satisfies User;
-
 export interface SignUpParams {
   firstName: string;
   lastName: string;
@@ -43,6 +29,7 @@ class AuthClient {
   async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string; roles?: string[] }> {
     const { email, password } = params;
     const setAccessToken = useAuthStore.getState().setAccessToken;
+    const setRefreshToken = useAuthStore.getState().setRefreshToken;
     const setRoles = useAuthStore.getState().setRoles;
 
     try {
@@ -60,9 +47,11 @@ class AuthClient {
       }
 
       const data = await response.json();
-      const { accessToken, roles } = data;
+      const { accessToken, refreshToken, roles } = data;
 
+      // Save accessToken, refreshToken, and roles in Zustand store
       setAccessToken(accessToken);
+      setRefreshToken(refreshToken);
       setRoles(roles);
 
       return { roles };
@@ -97,6 +86,41 @@ class AuthClient {
     } catch (error) {
       console.error('GetUser Error:', error);
       return { data: null, error: 'Failed to fetch user' };
+    }
+  }
+
+  // New method to refresh the access token using the refresh token
+  async refreshAccessToken(): Promise<{ accessToken?: string; error?: string }> {
+    const refreshToken = useAuthStore.getState().refreshToken;
+    const setAccessToken = useAuthStore.getState().setAccessToken;
+
+    if (!refreshToken) {
+      return { error: 'No refresh token found' };
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/v1/auth/refresh-token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        return { error: errorData.message };
+      }
+
+      const data = await response.json();
+      const { accessToken } = data;
+
+      setAccessToken(accessToken);
+
+      return { accessToken };
+    } catch (error) {
+      console.error('RefreshAccessToken Error:', error);
+      return { error: 'Failed to refresh token' };
     }
   }
 }
