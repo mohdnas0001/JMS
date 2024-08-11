@@ -17,7 +17,10 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '18'  # Ensure Node.js 18.x is used
+
+    - name: Remove package-lock.json
+      run: rm -f package-lock.json
 
     - name: Install dependencies with Yarn
       run: yarn install
