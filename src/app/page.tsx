@@ -11,7 +11,7 @@ export default function Page(): never {
   if (user?.accessToken) {
     // Determine the redirect path based on the user's role
     if (user.roles.includes('editor')) {
-      redirect(paths.dashboard.editor.overview);
+      redirect(paths.dashboard.chiefEditor.overview);
     } else if (user.roles.includes('reviewer')) {
       redirect(paths.dashboard.reviewer.overview);
     } else {

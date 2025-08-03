@@ -15,7 +15,7 @@ interface EditorLayoutLayoutProps {
 }
 
 const ChiefEditorLayout: React.FC<EditorLayoutLayoutProps> = ({ children }) => {
-  const allowedRoles = ['chief-editor']; // Define the roles allowed for this layout
+  const allowedRoles = ['Editor-in-Chief']; // Define the roles allowed for this layout
 
   return (
     <Layout allowedRoles={allowedRoles}>

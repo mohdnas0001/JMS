@@ -16,11 +16,10 @@ import Typography from '@mui/material/Typography';
 import { Eye as EyeIcon } from '@phosphor-icons/react/dist/ssr/Eye';
 import { EyeSlash as EyeSlashIcon } from '@phosphor-icons/react/dist/ssr/EyeSlash';
 import { Controller, useForm } from 'react-hook-form';
+import { signIn } from 'next-auth/react';
 import { z as zod } from 'zod';
 
 import { paths } from '@/paths';
-import { authClient } from '@/lib/auth/client';
-import { useUser } from '@/hooks/use-user';
 
 const schema = zod.object({
   email: zod.string().min(1, { message: 'Email is required' }).email(),
@@ -31,12 +30,11 @@ type Values = zod.infer<typeof schema>;
 
 type DashboardPath =
   | typeof paths.dashboard.author.overview
-  | typeof paths.dashboard.editor.overview
+  | typeof paths.dashboard.chiefEditor.overview
   | typeof paths.dashboard.reviewer.overview;
 
 export function SignInForm(): React.JSX.Element {
   const router = useRouter();
-  const { checkSession } = useUser();
 
   const [showPassword, setShowPassword] = React.useState<boolean>(false);
   const [isPending, setIsPending] = React.useState<boolean>(false);
@@ -52,30 +50,23 @@ export function SignInForm(): React.JSX.Element {
     async (values: Values): Promise<void> => {
       setIsPending(true);
 
-      const { error, roles } = await authClient.signInWithPassword(values);
+      const result = await signIn('credentials', {
+        redirect: false, // Prevent automatic redirect after sign-in
+        email: values.email,
+        password: values.password,
+      });
 
-      if (error) {
-        setError('root', { type: 'server', message: error });
+      if (result?.error) {
+        setError('root', { type: 'server', message: result.error });
         setIsPending(false);
         return;
       }
 
-      // Refresh the auth state
-      await checkSession?.();
-
-      // Determine the redirect path based on the user role
-      let redirectPath: DashboardPath = paths.dashboard.author.overview; // default to author dashboard
-
-      if (roles?.includes('editor')) {
-        redirectPath = paths.dashboard.editor.overview;
-      } else if (roles?.includes('reviewer')) {
-        redirectPath = paths.dashboard.reviewer.overview;
-      }
-
-      // Redirect to the appropriate dashboard
-      router.replace(redirectPath);
+      // Redirect to dashboard after successful login
+      // You can customize this based on user roles if needed
+      router.replace(paths.dashboard.author.overview); // Adjust redirect path based on your app's logic
     },
-    [checkSession, router, setError]
+    [router, setError]
   );
 
   return (

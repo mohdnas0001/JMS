@@ -1,89 +1,33 @@
-import { useEffect, useState } from 'react';
-import { useAuthStore } from '@/zustand/store/authStore';
-import { authClient } from '@/lib/auth/client';
-
-interface User {
-  accessToken: string | null;
-  roles: string[];
-}
+import { useEffect, useState, useCallback } from 'react';
+import { useSession, signOut } from 'next-auth/react';
 
 export const useUser = () => {
-  const { accessToken, roles, setAccessToken, setRoles, clearAuth } = useAuthStore();
+  const { data: session, status } = useSession();
+  const [roles, setRoles] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const storedToken = localStorage.getItem('custom-auth-token');
-      const storedRoles = JSON.parse(localStorage.getItem('roles') || '[]');
-
-      if (!storedToken) {
-        clearAuth();
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await authClient.getUser();
-
-        if (response.error) {
-          const refreshResponse = await authClient.refreshAccessToken();
-
-          if (refreshResponse.error) {
-            clearAuth();
-            setError(refreshResponse.error);
-          } else {
-            setAccessToken(localStorage.getItem('custom-auth-token'));
-            setRoles(storedRoles);
-          }
-        } else {
-          setAccessToken(storedToken);
-          setRoles(storedRoles);
-        }
-      } catch (e) {
-        console.error('Failed to load user data.', e);
-        setError('Failed to load user data.');
-        clearAuth();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, [setAccessToken, setRoles, clearAuth]);
-
-  const checkSession = async () => {
-    const storedToken = localStorage.getItem('custom-auth-token');
-    const storedRoles = JSON.parse(localStorage.getItem('roles') || '[]');
-
-    if (!storedToken) {
-      clearAuth();
+  const fetchUserRoles = useCallback(() => {
+    if (status !== 'authenticated' || !session?.role) {
+      setIsLoading(false);
       return;
     }
 
     try {
-      const response = await authClient.getUser();
-
-      if (response.error) {
-        const refreshResponse = await authClient.refreshAccessToken();
-
-        if (refreshResponse.error) {
-          clearAuth();
-          setError(refreshResponse.error);
-        } else {
-          setAccessToken(localStorage.getItem('custom-auth-token'));
-          setRoles(storedRoles);
-        }
-      } else {
-        setAccessToken(storedToken);
-        setRoles(storedRoles);
-      }
+      // Assuming the roles are stored in the session
+      setRoles(Array.isArray(session.role) ? session.role : [session.role]);
     } catch (e) {
-      console.error('Failed to check session.', e);
-      setError('Failed to check session.');
-      clearAuth();
+      console.error('Failed to retrieve user roles.', e);
+      setError('Failed to retrieve user roles.');
+      signOut();
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [session, status]);
 
-  return { user: { accessToken, roles }, error, isLoading, checkSession };
+  useEffect(() => {
+    fetchUserRoles();
+  }, [fetchUserRoles]);
+
+  return { user: { accessToken: session?.accessToken, roles }, error, isLoading };
 };

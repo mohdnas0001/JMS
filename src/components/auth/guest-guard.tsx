@@ -1,10 +1,11 @@
+// GuestGuard.tsx
 'use client';
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 import { paths } from '@/paths';
-import { useUser } from '@/hooks/use-user';
 
 type DashboardPath =
   | typeof paths.dashboard.author.overview
@@ -12,31 +13,31 @@ type DashboardPath =
   | typeof paths.dashboard.reviewer.overview;
 
 const GuestGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, isLoading } = useUser();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   React.useEffect(() => {
-    if (isLoading) return; // Wait until loading is complete
+    if (status === 'loading') return; // Wait until loading is complete
 
-    if (user.accessToken) {
+    if (session) {
       console.debug('[GuestGuard]: User is logged in, redirecting to dashboard');
 
       // Determine the redirect path based on the user role
       let redirectPath: DashboardPath = paths.dashboard.author.overview; // default to author dashboard
 
-      if (user.roles.includes('editor')) {
+      if (session.role === 'editor') {
         redirectPath = paths.dashboard.chiefEditor.overview;
-      } else if (user.roles.includes('reviewer')) {
+      } else if (session.role === 'reviewer') {
         redirectPath = paths.dashboard.reviewer.overview;
       }
 
       // Redirect to the appropriate dashboard
       router.replace(redirectPath);
     }
-  }, [user, isLoading, router]);
+  }, [session, status, router]);
 
-  if (isLoading || user.accessToken) {
-    // Maybe render a loading state or nothing until redirect completes
+  if (status === 'loading' || session) {
+    // Render loading or nothing until redirect completes
     return null;
   }
 

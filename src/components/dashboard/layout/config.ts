@@ -11,6 +11,7 @@ export const navItemsAuthor: NavItemConfig[] = [
 export const navItemsChiefEditor = [
   { key: 'overview', title: 'Overview', href: paths.dashboard.chiefEditor.overview, icon: 'chart-pie' },
   { key: 'manuscripts', title: 'Manuscripts', href: paths.dashboard.chiefEditor.manuscripts, icon: 'manuscript' },
+  { key: 'sections', title: 'Sections', href: paths.dashboard.chiefEditor.sections, icon: 'manuscript' },
   { key: 'settings', title: 'Settings', href: paths.dashboard.chiefEditor.settings, icon: 'gear-six' },
 ] satisfies NavItemConfig[];
 

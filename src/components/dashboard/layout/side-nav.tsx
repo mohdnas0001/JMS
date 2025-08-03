@@ -23,12 +23,9 @@ import {
   navItemsSectionEditor,
 } from './config';
 import { navIcons } from './nav-icons';
-import { useAuthStore } from '@/zustand/store/authStore';
 
 const SideNav = (): React.JSX.Element => {
   const pathname = usePathname();
-  const router = useRouter(); // Initialize useRouter
-  const clearAuth = useAuthStore((state) => state.clearAuth); // Get clearAuth from the store
 
   let currentNavItems: NavItemConfig[] = [];
 
@@ -46,10 +43,7 @@ const SideNav = (): React.JSX.Element => {
     currentNavItems = navItemsSectionEditor;
   }
 
-  const handleLogout = () => {
-    clearAuth(); // Clear authentication state
-    router.push(paths.auth.signIn); // Redirect to the sign-in page
-  };
+  
 
   return (
     <Box
@@ -105,7 +99,6 @@ const SideNav = (): React.JSX.Element => {
           />
         </Box>
         <Button
-          onClick={handleLogout} 
           endIcon={<ArrowSquareUpRightIcon fontSize="var(--icon-fontSize-md)" />}
           fullWidth
           sx={{ mt: 2 }}

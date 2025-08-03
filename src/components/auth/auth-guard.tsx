@@ -1,43 +1,37 @@
-'use client';
-
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Alert from '@mui/material/Alert';
 
 import { paths } from '@/paths';
 import { logger } from '@/lib/default-logger';
-import { useUser } from '@/hooks/use-user';
 
 export interface AuthGuardProps {
   children: React.ReactNode;
-  allowedRoles?: string[]; // Optional prop to define allowed roles
+  allowedRoles?: string[]; 
 }
 
 export function AuthGuard({ children, allowedRoles }: AuthGuardProps): React.JSX.Element | null {
   const router = useRouter();
-  const { user, error, isLoading } = useUser();
+  const { data: session, status } = useSession();
   const [isChecking, setIsChecking] = React.useState<boolean>(true);
 
   const checkPermissions = async (): Promise<void> => {
-    if (isLoading) {
+    if (status === 'loading') {
       return;
     }
 
-    if (error) {
-      setIsChecking(false);
-      return;
-    }
-
-    if (!user.accessToken) {
+    if (status === 'unauthenticated') {
       logger.debug('[AuthGuard]: User is not logged in, redirecting to sign in');
       router.replace(paths.auth.signIn);
       return;
     }
 
-    // If allowedRoles are defined, check if user has at least one of them
-    if (allowedRoles && !user.roles.some((role) => allowedRoles.includes(role))) {
+    const userRole = session?.role ?? '';
+
+    if (allowedRoles && !allowedRoles.includes(userRole)) {
       logger.debug('[AuthGuard]: User does not have the required roles, redirecting to not authorized page');
-      router.replace(paths.errors.notAuthorized); // Redirect to a "Not Authorized" page
+      router.replace(paths.errors.notAuthorized); 
       return;
     }
 
@@ -46,18 +40,16 @@ export function AuthGuard({ children, allowedRoles }: AuthGuardProps): React.JSX
 
   React.useEffect(() => {
     checkPermissions().catch(() => {
-      // noop
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Expected
-  }, [user, error, isLoading]);
+  }, [session, status]);
 
-  if (isChecking) {
+  if (isChecking || status === 'loading') {
     return null;
   }
 
-  if (error) {
-    return <Alert color="error">{error}</Alert>;
+  if (status === 'unauthenticated') {
+    return <Alert color="error">You are not authenticated</Alert>;
   }
 
-  return <React.Fragment>{children}</React.Fragment>;
+  return <>{children}</>;
 }

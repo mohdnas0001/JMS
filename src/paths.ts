@@ -9,6 +9,7 @@ export const paths = {
     chiefEditor: {
       overview: '/dashboard/chief-editor',
       manuscripts: '/dashboard/chief-editor/manuscripts',
+      sections: '/dashboard/chief-editor/sections',
       settings: '/dashboard/chief-editor/settings',
     },
     reviewer: {

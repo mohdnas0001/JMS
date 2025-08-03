@@ -2,7 +2,6 @@
 
 import { baseUrl } from '@/constants/config';
 import { useAuthStore } from '@/zustand/store/authStore';
-
 import type { User } from '@/types/user';
 
 export interface SignUpParams {
@@ -26,12 +25,11 @@ export interface ResetPasswordParams {
 }
 
 class AuthClient {
+  // Method to sign in with email and password
   async signInWithPassword(params: SignInWithPasswordParams): Promise<{ error?: string; roles?: string[] }> {
     const { email, password } = params;
-    const setAccessToken = useAuthStore.getState().setAccessToken;
-    const setRefreshToken = useAuthStore.getState().setRefreshToken;
-    const setRoles = useAuthStore.getState().setRoles;
-
+    const { setAccessToken, setRefreshToken, setRoles } = useAuthStore.getState();
+  
     try {
       const response = await fetch(`${baseUrl}/v1/auth/login/email`, {
         method: 'POST',
@@ -40,27 +38,34 @@ class AuthClient {
         },
         body: JSON.stringify({ email, password }),
       });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         return { error: errorData.message };
       }
-
+  
       const data = await response.json();
       const { accessToken, refreshToken, roles } = data;
-
-      // Save accessToken, refreshToken, and roles in Zustand store
+  
+      // Check if roles are defined before setting them
+      if (roles) {
+        setRoles(roles);
+      } else {
+        console.error('Roles are undefined in the response');
+      }
+  
       setAccessToken(accessToken);
       setRefreshToken(refreshToken);
-      setRoles(roles);
-
+  
       return { roles };
     } catch (error) {
       console.error('SignInWithPassword Error:', error);
       return { error: 'Network error' };
     }
   }
+  
 
+  // Method to get the current user based on the access token
   async getUser(): Promise<{ data: User | null; error: string | null }> {
     const accessToken = useAuthStore.getState().accessToken;
 
@@ -89,10 +94,9 @@ class AuthClient {
     }
   }
 
-  // New method to refresh the access token using the refresh token
+  // Method to refresh the access token using the refresh token
   async refreshAccessToken(): Promise<{ accessToken?: string; error?: string }> {
-    const refreshToken = useAuthStore.getState().refreshToken;
-    const setAccessToken = useAuthStore.getState().setAccessToken;
+    const { refreshToken, setAccessToken } = useAuthStore.getState();
 
     if (!refreshToken) {
       return { error: 'No refresh token found' };

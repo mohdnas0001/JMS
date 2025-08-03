@@ -10,8 +10,8 @@ import dayjs from 'dayjs';
 
 import { config } from '@/config';
 import { CustomersFilters } from '@/components/dashboard/manuscripts/customers-filters';
-import { CustomersTable } from '@/components/dashboard/manuscripts/customers-table';
-import type { Customer } from '@/components/dashboard/manuscripts/customers-table';
+import { CustomersTable } from '@/components/dashboard/manuscripts/manuscripts-table';
+import type { Customer } from '@/components/dashboard/manuscripts/manuscripts-table';
 
 export const metadata = { title: `Manuscript | Dashboard | ${config.site.name}` } satisfies Metadata;
 
